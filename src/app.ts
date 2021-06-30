@@ -1,14 +1,11 @@
 import express from 'express';
-interface Controller {
-  router: express.Router;
-}
-
+import Controller from './interfaces/controller.interface';
+import mongoose from 'mongoose';
 class App {
   public app: express.Application;
-  public port: number;
-  constructor(controllers: Controller[], port: number) {
+  constructor(controllers: Controller[]) {
     this.app = express();
-    this.port = port;
+    this.connectToTheDatabase();
     this.initializeMiddlewares();
     this.initializeControllers(controllers);
   }
@@ -22,9 +19,22 @@ class App {
     });
   }
   public listen() {
-    this.app.listen(this.port, () => {
-      console.log(`App listening on the port ${this.port}`);
+    this.app.listen(process.env.PORT, () => {
+      console.log(`App listening on the port ${process.env.PORT}`);
     });
+  }
+  private connectToTheDatabase() {
+    const { MONGO_DB_URI } = process.env;
+    mongoose
+      .connect(MONGO_DB_URI as string, {
+        useNewUrlParser: true,
+        useUnifiedTopology: true,
+        useFindAndModify: true,
+      })
+      .catch((err) => {
+        console.log(`MongoDB connect error: ${err}`);
+        process.exit(1);
+      });
   }
 }
 

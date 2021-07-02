@@ -1,7 +1,7 @@
 import App from './app';
 import PostController from './posts/posts.controller';
-import mongoose from 'mongoose';
 import validateEnv from './utils/validateEnv';
+import AuthenticationController from './authentication/authentication.controller';
 validateEnv();
-const app = new App([new PostController()]);
+const app = new App([new PostController(), new AuthenticationController()]);
 app.listen();

@@ -1,6 +1,9 @@
 import express from 'express';
 import Controller from './interfaces/controller.interface';
 import mongoose from 'mongoose';
+import errorMiddleware from './middleware/error.middleware';
+import cookieParser from 'cookie-parser';
+
 class App {
   public app: express.Application;
   constructor(controllers: Controller[]) {
@@ -8,10 +11,15 @@ class App {
     this.connectToTheDatabase();
     this.initializeMiddlewares();
     this.initializeControllers(controllers);
+    this.initializeErrorHandling();
   }
 
   private initializeMiddlewares() {
     this.app.use(express.json());
+    this.app.use(cookieParser());
+  }
+  private initializeErrorHandling() {
+    this.app.use(errorMiddleware);
   }
   private initializeControllers(controllers: Controller[]) {
     controllers.forEach((controller) => {

@@ -1,7 +1,7 @@
 import * as express from 'express';
 import { NextFunction } from 'express-serve-static-core';
 import Post from './post.interface';
-import postsModel from './posts.model';
+import postModel from './post.model';
 import PostNotFoundException from '../exceptions/PostNotFoundException';
 import validationMiddleware from '../middleware/validation.middleware';
 import CreatePostDto from './post.dto';
@@ -11,7 +11,7 @@ import RequestWithUser from '../interfaces/requestWithUser.interface';
 class PostController {
   public path = '/posts';
   public router = express.Router();
-
+  private post = postModel;
   constructor() {
     this.intializeRoutes();
   }
@@ -37,7 +37,7 @@ class PostController {
     request: express.Request,
     response: express.Response
   ) => {
-    const posts = await postsModel.find();
+    const posts = await this.post.find().populate('author', '-password');
     response.json(posts);
   };
   getPostById = async (
@@ -46,7 +46,7 @@ class PostController {
     next: NextFunction
   ) => {
     const { id } = request.params;
-    const post = await postsModel.findById(id);
+    const post = await this.post.findById(id);
     if (post) {
       response.json(post);
     } else {
@@ -55,11 +55,12 @@ class PostController {
   };
   createPost = async (request: RequestWithUser, response: express.Response) => {
     const postData: Post = request.body;
-    const createdPost = new postsModel({
+    const createdPost = new this.post({
       ...postData,
-      authorId: request.user._id,
+      author: request.user._id,
     });
     const savedPost = await createdPost.save();
+    await savedPost.populate('author', '-password').execPopulate();
     response.json(savedPost);
   };
   modifyPost = async (
@@ -69,7 +70,7 @@ class PostController {
   ) => {
     const { id } = request.params;
     const postData: Post = request.body;
-    const updatedData = await postsModel.findByIdAndUpdate(id, postData, {
+    const updatedData = await this.post.findByIdAndUpdate(id, postData, {
       new: true,
     });
     if (updatedData) {
@@ -84,7 +85,7 @@ class PostController {
     next: NextFunction
   ) => {
     const { id } = request.params;
-    const deletedPost = await postsModel.findByIdAndDelete(id);
+    const deletedPost = await this.post.findByIdAndDelete(id);
     if (deletedPost) {
       response.json(deletedPost);
     } else {

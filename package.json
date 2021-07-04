@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "dev": "ts-node ./src/server.ts"
+    "dev": "ts-node ./src/server.ts",
+    "test":"jest"
   },
   "repository": "git@github.com:sangmin4208/express-ts.git",
   "author": "sangmin <sangmin4208@gmail.com>",
@@ -25,6 +26,9 @@
   "devDependencies": {
     "@types/bcrypt": "^5.0.0",
     "@types/cookie-parser": "^1.4.2",
-    "@types/jsonwebtoken": "^8.5.3"
+    "@types/jest": "^26.0.23",
+    "@types/jsonwebtoken": "^8.5.3",
+    "jest": "^27.0.6",
+    "ts-jest": "^27.0.3"
   }
 }
